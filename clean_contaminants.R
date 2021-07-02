@@ -155,7 +155,7 @@ cat("\nSaving...")
 #contaminants$NameFasta <- apply(contaminants[,cols], 1, paste, collapse = "|")
 contaminants_transcripts <- contaminants$TranscriptName 
 write.table(contaminants_transcripts,paste(args[2],"_contaminantsID.txt", sep = ""), sep = "\n", col.names = FALSE, row.names = FALSE, quote = FALSE)    # list with contaminants transcripts names
-write.table(wo_contaminants, paste(args[2],"_contaminatsfree_annotation.txt", sep = ""), row.names = FALSE, sep = "\t")    # file without contaminants
+write.table(wo_contaminants, paste(args[2],"_contaminantsfree_annotation.txt", sep = ""), row.names = FALSE, sep = "\t")    # file without contaminants
 write.table(more.frequent, paste(args[2],"_more_frequent_contaminants.txt", sep = ""), row.names = FALSE, sep = "\t")    # file with the frequency of the more frequent contaminants
 
 cat("\ndone!\n")
