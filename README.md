@@ -2,7 +2,7 @@
 Scripts to manipulate annotations from Annocript
 
 ## Clean contaminants
-Identify possible contaminants in the output of Annocript based on the NCBI taxonomy identification.
+An R script to identify possible contaminants in the output of Annocript based on the NCBI taxonomy identification.
 
 ### Requirements
 
