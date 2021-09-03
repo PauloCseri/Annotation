@@ -104,9 +104,6 @@ len <- length(tax)
 ## New data.frame to receive lines that do not correspond to contaminants
 wo_contaminants <- file
 
-# Create %ni% (not in) operator to use in comparisons
-"%ni%" <- Negate("%in%")    
-
 cat("Running:\n")
 
 ## Proceed with the analysis of potential contaminants
