@@ -35,5 +35,9 @@ Rscript clean_contaminants.R [options]
 ```
 
 ### Outputs
-- A list with the name of the potentially contaminating transcripts;
-- A table with the annotations of the other transcripts in the format provided by Annocript.
+- A list with the name of the potentially contaminating transcripts
+- A table of the most frequent contaminants and their frequencies
+- A table of transcripts not identified as contaminants
+- A .fasta file with the sequences of transcripts not identified as contaminants [optional]
+- A .fasta file with the amino acid sequences of the transcript ORFs not identified as contaminants [optional]
+
