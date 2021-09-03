@@ -45,26 +45,19 @@
 ##    -h, --help
 ##      Show this help message and exit
 ##
-##
 ## ---------------------------
-
-## load up the packages we will need:
-
+##
+##  Load up the required packages:
 cat("\nLoading required packages and functions...\n")
-
 if (!requireNamespace("pacman", quietly = TRUE))
   install.packages("pacman")
 pacman::p_load(optparse,reticulate,Biostrings) # reticulate allows use python within R env
 
-## ---------------------------
-
-## load up our functions into memory (python)
-
+## Load up functions into memory (python)
 source_python("/mnt/d/cseri/Documents/Utils_pcr/Entrez.py")
 source_python("/mnt/d/cseri/Documents/Utils_pcr/NCBITaxa.py")
 
-## ---------------------------
-
+## Define parameters
 option_list = list(
   make_option(c("-f", "--file"), type="character", default=NULL, 
               help="Path to annotation file", metavar="character"),
@@ -84,6 +77,7 @@ option_list = list(
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
 
+## Check if the annotation file is provided
 if (is.null(opt$file)){
   print_help(opt_parser)
   stop("At least one argument must be supplied (Annocript_filt_ann_out).txt", call.=FALSE)
@@ -101,7 +95,7 @@ file <- read.table(opt$file, sep = "\t", quote = "", header = TRUE, colClasses =
 tax <- file$Taxonomy
 len <- length(tax)
 
-## New data.frame to receive lines that do not correspond to contaminants
+## Data.frame with lines that do not correspond to contaminants
 wo_contaminants <- file
 
 ## Proceed with the analysis of potential contaminants
@@ -143,7 +137,6 @@ ocorrence <- table(contaminants_TaxID)
 more.frequent <- ocorrence[ocorrence > 20]
 
 ## Save outputs
-
 cat("\nSaving annotations files...\n")
 contaminants_transcripts <- contaminants$TranscriptName
 no_contaminants_transcripts <- wo_contaminants$TranscriptName
