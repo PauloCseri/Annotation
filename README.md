@@ -11,8 +11,25 @@ An R script to identify possible contaminants in the output of Annocript based o
 - Requires Entrez and NCBITaxa python functions (indicate path in: "load up our functions into memory") ;
 - Requires internet access for the Entrez function;
 
-### Run it with (last output file name is optional):
+### Usage
+'''
+Rscript clean_contaminants.R [options]
+'''
 
-### Generates two outputs:
+### Options
+>   -f CHARACTER, --file=CHARACTER
+>     Path to the Annocript annotation table
+>   -o CHARACTER, --out=CHARACTER
+>     Output prefix
+>   -m CHARACTER, --mode=CHARACTER
+>     Search method: locally or online (very slow) [default= locally]
+>   -s CHARACTER, --fasta=CHARACTER
+>     Path to Transcripts.fasta sequences file [default= NULL]
+>   -p CHARACTER, --ORF=CHARACTER
+>     Path to Annocript_orf_info.fasta file [default= NULL]
+>   -h, --help
+>     Show this help message and exit
+
+### Outputs
 - A list with the name of the potentially contaminating transcripts;
 - A table with the annotations of the other transcripts in the format provided by Annocript.

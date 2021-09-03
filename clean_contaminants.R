@@ -1,4 +1,4 @@
-#!/usr/bin/env Rscript
+#!/usr/bin/Rscript --vanilla
 
 ## ---------------------------
 ##
@@ -46,7 +46,7 @@
 ##      Show this help message and exit
 ##
 ## ---------------------------
-##
+
 ##  Load up the required packages:
 cat("\nLoading required packages and functions...\n")
 if (!requireNamespace("pacman", quietly = TRUE))
