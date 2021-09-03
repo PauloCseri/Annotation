@@ -6,9 +6,9 @@
 ##
 ## Purpose of script: Identify possible contaminants in the output of Annocript 
 ##  based on the NCBI taxonomy identification. Generates two outputs:
-##  - A list with the name of the potentially contaminating transcripts;
-##  - A table with the annotations of the other transcripts in the format 
-##    provided by Annocript. 
+##    - A list with the name of the potentially contaminating transcripts;
+##    - A table with the annotations of the other transcripts in the format 
+##      provided by Annocript. 
 ##
 ## Author: Paulo Cseri Ricardo
 ##
@@ -18,13 +18,13 @@
 ##
 ## ---------------------------
 ##
-## Notes: 
-##  - Requires the installation of the Biopython module in python v3.8;
-##  - Requires installation of ETE module (Environment for phylogenetic Tree 
-##    Exploration) n python v3.8;
-##  - Requires Entrez and NCBITaxa python functions (indicate path in: "load up 
-##  our functions into memory") ;
-##  - Requires internet access for the Entrez function;
+##  Notes: 
+##    - Requires the installation of the Biopython module (python3);
+##    - Requires installation of ETE module (Environment for phylogenetic Tree 
+##      Exploration);
+##    - Requires Entrez and NCBITaxa python functions (indicate path in: "load up 
+##      our functions into memory") ;
+##    - Requires internet access for the Entrez function;
 ##  
 ## ---------------------------
 ##  
@@ -153,18 +153,20 @@ write.table(wo_contaminants, paste(opt$out,"_contaminatsfree_annotation.txt", se
 write.table(more.frequent, paste(opt$out,"_more_frequent_contaminants.txt", sep = ""), row.names = FALSE, sep = "\t")    # file with the frequency of the more frequent contaminants
 
 ## save fata files
-cat("\nSaving fasta files...\n")
-if(length(opt$fasta) == 1){
-  trans.seq <- readDNAStringSet(filepath = opt$fasta)
-  trans.seq.cleanned <- trans.seq[no_contaminants_transcripts]
-  writeXStringSet(trans.seq.cleanned,paste(opt$out,"_contaminantsfree.fasta",sep = ""))
-}
-
-if(length(opt$ORF) == 1){
-  aa.orf <- readAAStringSet(filepath = opt$ORF)
-  names(aa.orf) <- gsub(" ].*","",names(aa.orf))
-  aa.orf.cleanned <- aa.orf[no_contaminants_transcripts]
-  writeXStringSet(aa.orf.cleanned,paste(opt$out,"_orf_contaminantsfree.fasta",sep = ""))
+if(length(opt$fasta) == 1 | length(opt$ORF) == 1){
+  cat("\nSaving fasta files...\n")
+  if(length(opt$fasta) == 1){
+    trans.seq <- readDNAStringSet(filepath = opt$fasta)
+    trans.seq.cleanned <- trans.seq[no_contaminants_transcripts]
+    writeXStringSet(trans.seq.cleanned,paste(opt$out,"_contaminantsfree.fasta",sep = ""))
+  }
+  
+  if(length(opt$ORF) == 1){
+    aa.orf <- readAAStringSet(filepath = opt$ORF)
+    names(aa.orf) <- gsub(" ].*","",names(aa.orf))
+    aa.orf.cleanned <- aa.orf[no_contaminants_transcripts]
+    writeXStringSet(aa.orf.cleanned,paste(opt$out,"_orf_contaminantsfree.fasta",sep = ""))
+  }
 }
 
 cat("\ndone!\n")
