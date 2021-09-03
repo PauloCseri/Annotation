@@ -13,13 +13,13 @@ An R script to identify possible contaminants in the output of Annocript based o
 
 ### Usage
 
-'''
+```
 Rscript clean_contaminants.R [options]
-'''
+```
 
 ### Options
 
-'''
+```
    -f CHARACTER, --file=CHARACTER
      Path to the Annocript annotation table
    -o CHARACTER, --out=CHARACTER
@@ -32,7 +32,7 @@ Rscript clean_contaminants.R [options]
      Path to Annocript_orf_info.fasta file [default= NULL]
    -h, --help
      Show this help message and exit
- '''
+```
 
 ### Outputs
 - A list with the name of the potentially contaminating transcripts;
