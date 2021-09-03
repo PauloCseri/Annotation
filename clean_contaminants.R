@@ -2,19 +2,19 @@
 
 ## ---------------------------
 ##
-## Script name: clean contaminants
+##  clean contaminants
 ##
-## Purpose of script: Identify possible contaminants in the output of Annocript 
-##  based on the NCBI taxonomy identification. Generates two outputs:
-##    - A list with the name of the potentially contaminating transcripts;
-##    - A table with the annotations of the other transcripts in the format 
-##      provided by Annocript. 
+##  Identify possible contaminants in the output of Annocript 
+##  based on the NCBI taxonomy identification. Generates five outputs:
+##    - A list with the name of the potentially contaminating transcripts
+##    - A table of the most frequent contaminants and their frequencies
+##    - A table of transcripts not identified as contaminants
+##    - A .fasta file with the sequences of transcripts not identified as contaminants [optional]
+##    - A .fasta file with the amino acid sequences of the transcript ORFs not identified as contaminants [optional]
 ##
-## Author: Paulo Cseri Ricardo
-##
-## Date Created: 2020-06-22
-##
-## Email: cseri.bio@gmail.com
+##  Author: Paulo Cseri Ricardo
+##  Date Created: 2020-06-22
+##  Email: cseri.bio@gmail.com
 ##
 ## ---------------------------
 ##
@@ -54,7 +54,6 @@ cat("\nLoading required packages and functions...\n")
 
 if (!requireNamespace("pacman", quietly = TRUE))
   install.packages("pacman")
-
 pacman::p_load(optparse,reticulate,Biostrings) # reticulate allows use python within R env
 
 ## ---------------------------
@@ -90,13 +89,14 @@ if (is.null(opt$file)){
   stop("At least one argument must be supplied (Annocript_filt_ann_out).txt", call.=FALSE)
 }
 
-
 # Define python version (needs v 3.8)
 use_python("/usr/bin/python3.8", required = FALSE)    
 # Search mode
 search = as.character(opt$mode)
 
+
 ## open annotation file
+cat("\nReading annotation file...\n")
 file <- read.table(opt$file, sep = "\t", quote = "", header = TRUE, colClasses = c(rep("character",51)))
 tax <- file$Taxonomy
 len <- length(tax)
@@ -104,9 +104,8 @@ len <- length(tax)
 ## New data.frame to receive lines that do not correspond to contaminants
 wo_contaminants <- file
 
-cat("Running:\n")
-
 ## Proceed with the analysis of potential contaminants
+cat("Identifying contaminants:\n")
 pb <- txtProgressBar(min = 0, max = len, style = 3) # Create a progress bar
 
 for(i in 1:len){
@@ -149,8 +148,8 @@ cat("\nSaving annotations files...\n")
 contaminants_transcripts <- contaminants$TranscriptName
 no_contaminants_transcripts <- wo_contaminants$TranscriptName
 write.table(contaminants_transcripts,paste(opt$out,"_contaminantsID.txt", sep = ""), sep = "\n", col.names = FALSE, row.names = FALSE, quote = FALSE)    # list with contaminants transcripts names
-write.table(wo_contaminants, paste(opt$out,"_contaminatsfree_annotation.txt", sep = ""), row.names = FALSE, sep = "\t")    # file without contaminants
-write.table(more.frequent, paste(opt$out,"_more_frequent_contaminants.txt", sep = ""), row.names = FALSE, sep = "\t")    # file with the frequency of the more frequent contaminants
+write.table(wo_contaminants, paste(opt$out,"_contaminatsfree_annotation.txt", sep = ""), row.names = FALSE, sep = "\t",quote = FALSE)    # file without contaminants
+write.table(more.frequent, paste(opt$out,"_more_frequent_contaminants.txt", sep = ""), row.names = FALSE, sep = "\t",quote = FALSE)    # file with the frequency of the more frequent contaminants
 
 ## save fata files
 if(length(opt$fasta) == 1 | length(opt$ORF) == 1){
