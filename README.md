@@ -71,6 +71,6 @@ Rscript clean_Trinotate_data.R [options]
 
 ### Outputs
 - A table with the name of the potentially contaminating transcripts in the Trinotate format
-- A table with the name of non-contaminantin transcripts in the Trinotate format
+- A table with the name of non-contaminanting transcripts in the Trinotate format
 - A Trinity.fasta file with the sequences of transcripts not identified as contaminants [optional]
 - A Trinity.gene_trans_map file of genes not identified as contaminants [optional]
