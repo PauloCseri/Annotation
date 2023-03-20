@@ -8,7 +8,7 @@
 ##  based on the NCBI taxonomy identification. Generates four outputs:
 ##  - A table with the name of the potentially contaminating transcripts in the
 ##    Trinotate format;
-##  - A table with the name of non-contaminantin transcripts in the Trinotate format.
+##  - A table with the name of non-contaminanting transcripts in the Trinotate format.
 ##  - Two optional outputs from the Trinity assembly data (Trinity.fasta 
 ##    and Trinity.gene_trans_map) without contaminating transcripts.
 ##
