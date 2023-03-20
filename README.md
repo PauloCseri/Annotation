@@ -1,7 +1,7 @@
 # Annotation
 Scripts to manipulate annotations from Annocript
 
-## Clean contaminants
+## Clean Annocript data
 An R script to identify possible contaminants in the output of Annocript based on the NCBI taxonomy identification.
 
 ### Requirements
@@ -14,7 +14,7 @@ An R script to identify possible contaminants in the output of Annocript based o
 ### Usage
 
 ```
-Rscript clean_contaminants.R [options]
+Rscript clean_Annocript_data.R [options]
 ```
 
 ### Options
@@ -41,3 +41,36 @@ Rscript clean_contaminants.R [options]
 - A .fasta file with the sequences of transcripts not identified as contaminants [optional]
 - A .fasta file with the amino acid sequences of the transcript ORFs not identified as contaminants [optional]
 
+## Clean Trinotate data
+An R script to identify possible contaminants in the output of Trinotate report.
+
+### Usage
+
+```
+Rscript clean_Trinotate_data.R [options]
+```
+
+### Options
+
+```
+   -t CHARACTER, --trinotate=CHARACTER
+     Path to Trinotate report
+   -o CHARACTER, --out=CHARACTER
+     outprefix name [default= Trinotate]
+   -c CHARACTER, --contaminants=CHARACTER
+     List of contaminants taxa [default= NULL]
+   -a, --assembly
+     Logical string (TRUE or FALSE) to define whether to use the assembly data [default= FALSE]
+   -f CHARACTER, --fasta=CHARACTER
+     Path to Trinity.fasta assembly file [default= Trinity]
+   -m CHARACTER, --map=CHARACTER
+     Path Trinity.gene_trans_map assembly file [default= Trinity]
+   -h, --help
+     Show this help message and exit
+```
+
+### Outputs
+- A table with the name of the potentially contaminating transcripts in the Trinotate format
+- A table with the name of non-contaminantin transcripts in the Trinotate format
+- A Trinity.fasta file with the sequences of transcripts not identified as contaminants [optional]
+- A Trinity.gene_trans_map file of genes not identified as contaminants [optional]
