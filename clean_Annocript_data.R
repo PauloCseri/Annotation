@@ -1,30 +1,30 @@
-#!/usr/bin/Rscript --vanilla
+#!/usr/bin/env Rscript --vanila
 
 ## ---------------------------
 ##
-##  clean contaminants
+## Script name: clean contaminants
 ##
-##  Identify possible contaminants in the output of Annocript 
-##  based on the NCBI taxonomy identification. Generates five outputs:
-##    - A list with the name of the potentially contaminating transcripts
-##    - A table of the most frequent contaminants and their frequencies
-##    - A table of transcripts not identified as contaminants
-##    - A .fasta file with the sequences of transcripts not identified as contaminants [optional]
-##    - A .fasta file with the amino acid sequences of the transcript ORFs not identified as contaminants [optional]
+## Purpose of script: Identify possible contaminants in the output of Annocript 
+##  based on the NCBI taxonomy identification. Generates two outputs:
+##  - A list with the name of the potentially contaminating transcripts;
+##  - A table with the annotations of the other transcripts in the format 
+##    provided by Annocript. 
 ##
-##  Author: Paulo Cseri Ricardo
-##  Date Created: 2020-06-22
-##  Email: cseri.bio@gmail.com
+## Author: Paulo Cseri Ricardo
+##
+## Date Created: 2020-06-22
+##
+## Email: cseri.bio@gmail.com
 ##
 ## ---------------------------
 ##
-##  Notes: 
-##    - Requires the installation of the Biopython module (python3);
-##    - Requires installation of ETE module (Environment for phylogenetic Tree 
-##      Exploration);
-##    - Requires Entrez and NCBITaxa python functions (indicate path in: "load up 
-##      our functions into memory") ;
-##    - Requires internet access for the Entrez function;
+## Notes: 
+##  - Requires the installation of the Biopython module in python v3.8;
+##  - Requires installation of ETE module (Environment for phylogenetic Tree 
+##    Exploration) n python v3.8;
+##  - Requires Entrez and NCBITaxa python functions (indicate path in: "load up 
+##  our functions into memory") ;
+##  - Requires internet access for the Entrez function;
 ##  
 ## ---------------------------
 ##  
@@ -38,6 +38,8 @@
 ##      Output prefix
 ##    -m CHARACTER, --mode=CHARACTER
 ##      Search method: locally or online (very slow) [default= locally]
+##    -c CHARACTER,--contaminants=CHARACTER
+##      List of contaminants taxa [default= NULL]
 ##    -s CHARACTER, --fasta=CHARACTER
 ##      Path to Transcripts.fasta sequences file [default= NULL]
 ##    -p CHARACTER, --ORF=CHARACTER
@@ -45,19 +47,30 @@
 ##    -h, --help
 ##      Show this help message and exit
 ##
+##
 ## ---------------------------
 
-##  Load up the required packages:
+## load up the packages we will need:
+
 cat("\nLoading required packages and functions...\n")
+
 if (!requireNamespace("pacman", quietly = TRUE))
   install.packages("pacman")
-pacman::p_load(optparse,reticulate,Biostrings) # reticulate allows use python within R env
 
-## Load up functions into memory (python)
+pacman::p_load(optparse,
+               reticulate, # reticulate allows use python within R env
+               Biostrings,
+               stringr) 
+
+## ---------------------------
+
+## load up our (python) functions into env
+
 source_python("/mnt/d/cseri/Documents/Utils_pcr/Entrez.py")
 source_python("/mnt/d/cseri/Documents/Utils_pcr/NCBITaxa.py")
 
-## Define parameters
+## ---------------------------
+
 option_list = list(
   make_option(c("-f", "--file"), type="character", default=NULL, 
               help="Path to annotation file", metavar="character"),
@@ -65,6 +78,9 @@ option_list = list(
               help="outprefix name [default= %default]", metavar="character"),
   make_option(c("-m", "--mode"), type = "character", default = "locally",
               help = "Search method: locally or online (very slow) [default= %default]",
+              metavar = "character"),
+  make_option(c("-c", "--contaminants"), type = "character", default = NULL,
+              help = "List of contaminants taxa [default= %default]",
               metavar = "character"),
   make_option(c("-s", "--fasta"), type = "character", default = NULL,
               help = "Path to Transcripts.fasta sequences file [default= %default]",
@@ -77,41 +93,45 @@ option_list = list(
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
 
-## Check if the annotation file is provided
 if (is.null(opt$file)){
   print_help(opt_parser)
   stop("At least one argument must be supplied (Annocript_filt_ann_out).txt", call.=FALSE)
 }
+
 
 # Define python version (needs v 3.8)
 use_python("/usr/bin/python3.8", required = FALSE)    
 # Search mode
 search = as.character(opt$mode)
 
-
 ## open annotation file
-cat("\nReading annotation file...\n")
 file <- read.table(opt$file, sep = "\t", quote = "", header = TRUE, colClasses = c(rep("character",51)))
-tax <- file$Taxonomy
+
+## Extract TaxID
+tax <- file$Taxonomy %>% str_extract("TaxID.[0-9]*") %>% str_remove("TaxID ")
 len <- length(tax)
 
-## Data.frame with lines that do not correspond to contaminants
+## New data.frame to receive lines that do not correspond to contaminants
 wo_contaminants <- file
 
+
+## Define COntaminants
+if(length(opt$contaminants) == 1){
+  Contaminants <- as.character(opt$contaminants)
+} else{
+  Contaminants <- c("Fungi","Bacteria","Viridiplantae","Acari","Alveolata", "Rhodophyta","Viruses", "Archaea", "metagenomes", "Rhizaria") # taxonomic lineage of contaminants
+}
+
+cat("Running:\n")
+
 ## Proceed with the analysis of potential contaminants
-cat("Identifying contaminants:\n")
 pb <- txtProgressBar(min = 0, max = len, style = 3) # Create a progress bar
 
 for(i in 1:len){
-  string <- as.character(unlist(tax[i]))
-  vector <- unlist(strsplit(string, " "))
-  vector.size <- length(vector)
-  if(vector.size > 1){
-    taxid <- vector[vector.size]
+  taxid <- tax[i]
+  if(taxid != "-"){
     
     ## Check which transcripts are in the taxonomic lineage of contaminants (according to NCBI Taxonomy database)
-    Contaminants <- c("Fungi","Bacteria","Viridiplantae","Acari","Alveolata", "Rhodophyta","Viruses", "Archaea", "metagenomes", "Rhizaria") # taxonomic lineage of contaminants
-    
     if(search == "online"){
       lineage <- Entrez(taxid)
     } else if (search == "locally"){
@@ -134,31 +154,31 @@ contaminants <- file[!file$TranscriptName %in% wo_contaminants$TranscriptName,]
 ## Count contaminants frequency 
 contaminants_TaxID <- contaminants$Taxonomy
 ocorrence <- table(contaminants_TaxID)
-more.frequent <- ocorrence[ocorrence > 20]
+more.frequent <- ocorrence[ocorrence > 10]
 
 ## Save outputs
+
 cat("\nSaving annotations files...\n")
 contaminants_transcripts <- contaminants$TranscriptName
 no_contaminants_transcripts <- wo_contaminants$TranscriptName
 write.table(contaminants_transcripts,paste(opt$out,"_contaminantsID.txt", sep = ""), sep = "\n", col.names = FALSE, row.names = FALSE, quote = FALSE)    # list with contaminants transcripts names
-write.table(wo_contaminants, paste(opt$out,"_contaminatsfree_annotation.txt", sep = ""), row.names = FALSE, sep = "\t",quote = FALSE)    # file without contaminants
-write.table(more.frequent, paste(opt$out,"_more_frequent_contaminants.txt", sep = ""), row.names = FALSE, sep = "\t",quote = FALSE)    # file with the frequency of the more frequent contaminants
+write.table(ocorrence,paste(opt$out,"_contaminants_names.txt", sep = ""),sep = "\t", col.names = FALSE, row.names = FALSE, quote = FALSE)
+write.table(wo_contaminants, paste(opt$out,"_contaminatsfree_annotation.txt", sep = ""), row.names = FALSE, sep = "\t")    # file without contaminants
+write.table(more.frequent, paste(opt$out,"_more_frequent_contaminants.txt", sep = ""), row.names = FALSE, sep = "\t")    # file with the frequency of the more frequent contaminants
 
-## save fata files
-if(length(opt$fasta) == 1 | length(opt$ORF) == 1){
+## save fasta files
+if(!is.null(opt$fasta)){
   cat("\nSaving fasta files...\n")
-  if(length(opt$fasta) == 1){
-    trans.seq <- readDNAStringSet(filepath = opt$fasta)
-    trans.seq.cleanned <- trans.seq[no_contaminants_transcripts]
-    writeXStringSet(trans.seq.cleanned,paste(opt$out,"_contaminantsfree.fasta",sep = ""))
-  }
-  
-  if(length(opt$ORF) == 1){
-    aa.orf <- readAAStringSet(filepath = opt$ORF)
-    names(aa.orf) <- gsub(" ].*","",names(aa.orf))
-    aa.orf.cleanned <- aa.orf[no_contaminants_transcripts]
-    writeXStringSet(aa.orf.cleanned,paste(opt$out,"_orf_contaminantsfree.fasta",sep = ""))
-  }
+  trans.seq <- readDNAStringSet(filepath = opt$fasta)
+  trans.seq.cleanned <- trans.seq[no_contaminants_transcripts]
+  writeXStringSet(trans.seq.cleanned,paste(opt$out,"_contaminantsfree.fasta",sep = ""))
 }
 
-cat("\ndone!\n")
+if(!is.null(opt$ORF)){
+  aa.orf <- readAAStringSet(filepath = opt$ORF)
+  names(aa.orf) <- gsub(" ].*","",names(aa.orf))
+  aa.orf.cleanned <- aa.orf[no_contaminants_transcripts]
+  writeXStringSet(aa.orf.cleanned,paste(opt$out,"_orf_contaminantsfree.fasta",sep = ""))
+}
+
+cat("\nDone!\n")
