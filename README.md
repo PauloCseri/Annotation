@@ -1,5 +1,5 @@
 # Annotation
-Scripts to manipulate annotations from Annocript
+Scripts to handle with transcript annotation reports.
 
 ## Clean Annocript data
 An R script to identify possible contaminants in the output of Annocript based on the NCBI taxonomy identification.
